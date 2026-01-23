@@ -53,5 +53,92 @@ Title_ value contains one of the input texts in the table below, it will be auto
 This web extension stores the parameters in the synced storage space. The user can then share the settings
 in all synced firefox instances.
 
+## Nix / Firefox Integration
+
+This extension can be built and installed **without publishing to Mozilla Add-ons (AMO)** using Nix and Firefox enterprise policies.
+
+### Building the add-on with Nix
+
+This repository provides a `flake.nix` that builds the extension into a reproducible `.xpi` file:
+
+```bash
+nix build
+```
+
+The result will be available at:
+
+```text
+result/custom-tab-title-favicon.xpi
+```
+
+### Installing permanently in Firefox (no AMO)
+
+Firefox supports *enterprise policies* that allow force-installing extensions from local files, even if they are unsigned.
+
+#### Requirements
+
+- Firefox **Release** (works on stable Firefox)
+- A fixed extension ID in `manifest.json`:
+
+```json
+"browser_specific_settings": {
+  "gecko": {
+    "id": "custom-tab-title@example.com"
+  }
+}
+```
+
+#### NixOS configuration
+
+```nix
+{ pkgs, inputs, ... }:
+
+let
+  addon = inputs.custom-tab-title-favicon.packages.${pkgs.system}.firefox-addon;
+in {
+  programs.firefox = {
+    enable = true;
+
+    policies = {
+      ExtensionSettings = {
+        "custom-tab-title@example.com" = {
+          installation_mode = "force_installed";
+          install_url = "file://${addon}/custom-tab-title-favicon.xpi";
+        };
+      };
+    };
+  };
+}
+```
+
+#### Home Manager (non-NixOS)
+
+The same approach works with Home Manager on other Linux distributions:
+
+```nix
+{ pkgs, inputs, ... }:
+
+let
+  addon = inputs.custom-tab-title-favicon.packages.${pkgs.system}.firefox-addon;
+in {
+  programs.firefox = {
+    enable = true;
+
+    policies = {
+      ExtensionSettings = {
+        "custom-tab-title@example.com" = {
+          installation_mode = "force_installed";
+          install_url = "file://${addon}/custom-tab-title-favicon.xpi";
+        };
+      };
+    };
+  };
+}
+```
+
+This installs the extension automatically on Firefox startup and prevents manual removal.
+
+---
+
 ## License
 This web extension is distributed under the Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/)
