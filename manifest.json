@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Custom Tab Title and Favicon",
+  "name": "Custom Tab Title (from File)",
   "version": "2.1.0",
-  "description": "Firefox web extension to change the title and favicon of any tab depending on regular expressions applied to the tab address URL or title",
+  "description": "Firefox web extension to change the title of any tab depending on regular expressions applied to the tab address URL",
   "icons": {
     "48": "icons/outline_folder_special_black_48dp.png",
     "96": "icons/outline_folder_special_black_96dp.png"
@@ -22,7 +22,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "custom-tab-title-favicon@beathagenlocher.com",
+      "id": "custom-title-from-file@beathagenlocher.com",
       "strict_min_version": "57.0a1"
     }
   }

@@ -1,33 +1,30 @@
-# Custom Tab Title and Favicon
+# Custom Tab Title (from File)
 
-_Custom Tab Title and Favicon_ is a Firefox web extension that allows setting 
-rules to change the title, and the favicon of any tab based on
-regular expressions applied to the URL or the title of the tab
+_Custom Tab Title (from File)_ is a Firefox web extension that allows changing the title of any tab based on regular expressions applied to the tab URL.
 
-## Parameters
+## Rules
 
-You can manage the rules for your tabs in:
+Rules are stored as JSON in Firefox sync storage under the key `regexTitleRules`. Each rule is an object describing when and how a tab title should be replaced.
 
-- The preferences section of the add-on listed in the Extension Management of Firefox
-- By clicking on the add-on icon in the toolbar
-- By displaying it in the sidebar
+You can manage tab title rules in:
 
-Each rule has the following rule settings (all of them are optional):
+- The add-on preferences in Firefox’s Extension Management
+- The options page opened from the add-on
 
-| Setting                    | Description                                                                                                                                                                                                                                                            |
-|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| _Rule Name_                | A user defined name to identify the rule                                                                                                                                                                                                                               |
-| _Title Regular Expression_ | A matching rule applied to the title of the tab. If the title of the tab matches the regular expression, this web extension applies the rule. A simple portion of text or a regular expression are supported                                                           |
-| _URL Regular Expression_   | A matching applied to the URL address of the tab. If the URL address of the tab matches the regular expression, this web extension applies the rule. A simple portion of text or a regular expression are supported                                                    |
-| _Custom Title_             | The custom title replaces the title defined in the webpage when the rule is applied. If this custom title is not specified, the original title of the tab is unmodified. Dynamic values extracted from the current page can be automatically inserted in the new title |
-| _Custom Favicon_           | The custom favicon replaces the favicon defined in the webpage when the rule is applied. If this custom favicon is not specified, the original favicon of the tab is unmodified.                                                                                       |
+Each rule object supports the following properties:
+
+| Property  | Type   | Description |
+|-----------|--------|-------------|
+| `pattern` | string | Regular expression applied to the tab URL. If the URL matches, the rule is applied. The expression is evaluated case‑insensitively. |
+| `title`   | string | Custom title to apply when the rule matches. If omitted, the tab title is left unchanged. Supports dynamic placeholders (see below). |
 
 
-The _Custom Title_ setting also supports injection of dynamic values. When the _Custom
-Title_ value contains one of the input texts in the table below, it will be automatically replaced by the corresponding value.
+### Dynamic title placeholders
 
-| Input text      | Description                                                                                                                                                                                           | Example Custom title      | Page address                                  | Original title                            | New page title                                      |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|-----------------------------------------------|-------------------------------------------|-----------------------------------------------------|
+The `title` property supports dynamic placeholders. When one of the placeholders below appears in the title string, it is automatically replaced with the corresponding runtime value.
+
+| Placeholder | Description |
+|-------------|-------------|
 | [page_title]    | The title of the tab.                                                                                                                                                                                 | Visiting: [page_title]    | https://www.mozilla.org/en-US                 | Internet for people, not profit - Mozilla | Visiting: Internet for people, not profit - Mozilla |
 | [page_url]      | The URL of the page                                                                                                                                                                                   | URL: [page_title]         | https://www.mozilla.org/en-US                 | Internet for people, not profit - Mozilla | URL: https://www.mozilla.org/en-US                  |
 | [page_host]     | The host property of the URL interface is a string containing the host, that is the hostname, and then, if the port of the URL is nonempty, a ':', followed by the port of the URL.                   | Host: [page_host]         | https://www.mozilla.org/en-US                 | Internet for people, not profit - Mozilla | Host: www.mozilla.org                               |
@@ -48,97 +45,17 @@ Title_ value contains one of the input texts in the table below, it will be auto
 | [seconds]       | The current seconds in the current minute                                                                                                                                                             | Seconds: [seconds]        | https://www.mozilla.org:443/en-US             | Internet for people, not profit - Mozilla | Seconds: 52                                         |
 
 
-## Sync support
 
-This web extension stores the parameters in the synced storage space. The user can then share the settings
-in all synced firefox instances.
 
-## Nix / Firefox Integration
 
-This extension can be built and installed **without publishing to Mozilla Add-ons (AMO)** using Nix and Firefox enterprise policies.
 
-### Building the add-on with Nix
 
-This repository provides a `flake.nix` that builds the extension into a reproducible `.xpi` file:
 
-```bash
-nix build
-```
 
-The result will be available at:
 
-```text
-result/custom-tab-title-favicon.xpi
-```
 
-### Installing permanently in Firefox (no AMO)
 
-Firefox supports *enterprise policies* that allow force-installing extensions from local files, even if they are unsigned.
 
-#### Requirements
 
-- Firefox **Release** (works on stable Firefox)
-- A fixed extension ID in `manifest.json`:
 
-```json
-"browser_specific_settings": {
-  "gecko": {
-    "id": "custom-tab-title@example.com"
-  }
-}
-```
 
-#### NixOS configuration
-
-```nix
-{ pkgs, inputs, ... }:
-
-let
-  addon = inputs.custom-tab-title-favicon.packages.${pkgs.system}.firefox-addon;
-in {
-  programs.firefox = {
-    enable = true;
-
-    policies = {
-      ExtensionSettings = {
-        "custom-tab-title@example.com" = {
-          installation_mode = "force_installed";
-          install_url = "file://${addon}/custom-tab-title-favicon.xpi";
-        };
-      };
-    };
-  };
-}
-```
-
-#### Home Manager (non-NixOS)
-
-The same approach works with Home Manager on other Linux distributions:
-
-```nix
-{ pkgs, inputs, ... }:
-
-let
-  addon = inputs.custom-tab-title-favicon.packages.${pkgs.system}.firefox-addon;
-in {
-  programs.firefox = {
-    enable = true;
-
-    policies = {
-      ExtensionSettings = {
-        "custom-tab-title@example.com" = {
-          installation_mode = "force_installed";
-          install_url = "file://${addon}/custom-tab-title-favicon.xpi";
-        };
-      };
-    };
-  };
-}
-```
-
-This installs the extension automatically on Firefox startup and prevents manual removal.
-
----
-
-## License
-This web extension is distributed under the Mozilla Public License Version 2.0 (https://www.mozilla.org/en-US/MPL/2.0/)
