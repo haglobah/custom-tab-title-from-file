@@ -12,17 +12,16 @@ function applyRules(tabId, changeInfo) {
     let title = changeInfo.title || tab.title;
     let url = changeInfo.url || tab.url;
 
-    let allRules = browser.storage.sync.get();
-    allRules.then((rules) => {
-      for (const rule_id in rules) {
+      let allRules = browser.storage.sync.get("regexTitleRules");
+      allRules.then((data) => {
+        const rules = data.regexTitleRules || [];
+        for (const rule of rules) {
 
-        let rule = rules[rule_id];
+          if (RegExp(rule.pattern, 'i').test(url)) {
 
-        if ((rule.title_regex && RegExp(rule.title_regex).test(title)) ||
-          (rule.url_regex && RegExp(rule.url_regex).test(url))) {
+            if (rule.title) {
+              let newTitle = String(rule.title)
 
-          if (rule.custom_title) {
-            let newTitle = String(rule.custom_title)
             const pageURL = new URL(url)
             const now = new Date()
 
@@ -50,15 +49,7 @@ function applyRules(tabId, changeInfo) {
 
             addInTitles[tabId] = newTitle
           }
-          if (rule.custom_icon_url) {
-            browser.tabs.executeScript(tabId, {
-              code: "var link = document.querySelector(\"link[rel*='icon']\") || document.createElement('link');\n" +
-                "    link.type = 'image/x-icon';\n" +
-                "    link.rel = 'shortcut icon';\n" +
-                "    link.href = '" + rule.custom_icon_url + "';\n" +
-                "    document.getElementsByTagName('head')[0].appendChild(link);"
-            })
-          }
+
         }
       }
     });
@@ -73,8 +64,3 @@ browser.tabs.onUpdated.addListener(
   }
 );
 
-browser.browserAction.onClicked.addListener(() => {
-  browser.windows.getCurrent({populate: true}).then((windowInfo) => {
-    myWindowId = windowInfo.id;
-  });
-});
