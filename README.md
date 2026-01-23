@@ -19,6 +19,16 @@ Each rule object supports the following properties:
 | `title`   | string | Custom title to apply when the rule matches. If omitted, the tab title is left unchanged. Supports dynamic placeholders (see below). |
 
 
+### Example rule JSON
+
+Below is a complete example of a single rule object as stored in Firefox sync storage. This example renames all ChatGPT tabs by appending `| ChatGPT` to the original title.
+
+```json
+{
+  "chatgpt\\.com": "[page_title] | ChatGPT"
+}
+```
+
 ### Dynamic title placeholders
 
 The `title` property supports dynamic placeholders. When one of the placeholders below appears in the title string, it is automatically replaced with the corresponding runtime value.
