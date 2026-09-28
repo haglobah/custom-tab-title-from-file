@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Custom Tab Title (from File)",
-  "version": "1.0.0",
+  "version": "2.1.1",
   "description": "Firefox web extension to change the title of any tab depending on regular expressions applied to the tab address URL",
   "icons": {
     "48": "icons/outline_folder_special_black_48dp.png",
