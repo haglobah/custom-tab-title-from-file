@@ -13,7 +13,10 @@
     "storage"
   ],
   "background": {
-    "scripts": ["apply-rules.js"]
+    "scripts": [
+      "title-rules.js",
+      "apply-rules.js"
+    ]
   },
   "options_ui": {
     "page": "options/options-page.html",
